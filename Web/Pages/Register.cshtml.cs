@@ -15,7 +15,9 @@ namespace Web.Pages
         [BindProperty, Required]
         public string Username { get; set; }
 
-        [BindProperty, Required, EmailAddress]
+        [BindProperty, Required]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+            ErrorMessage = "Please enter a valid email address.")]
         public string Email { get; set; }
 
         [BindProperty, Required]
