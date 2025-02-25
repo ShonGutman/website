@@ -1,10 +1,45 @@
 ﻿@page
-@model IndexModel
+@model Web.Pages.IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Welcome to Our Shop";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Hero Section -->
+<section class="hero-section bg-dark text-white text-center py-4">
+    <div class="container">
+        <h1 class="display-5">Welcome to Our Shop!</h1>
+        <p class="lead mb-4">Discover amazing products and exclusive deals. Register now to start shopping!</p>
+        <a href="/Register" class="btn btn-primary btn-lg">Register Now</a>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about-section py-5">
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-md-6 text-center text-md-left">
+                <h2>About Us</h2>
+                <p class="text-muted">
+                    We are a trusted online shop offering a wide range of high-quality products. 
+                    Our mission is to provide you with the best shopping experience.
+                </p>
+                <a href="/About" class="btn btn-outline-secondary">Learn More</a>
+            </div>
+            <div class="col-md-6 text-center">
+                <img src="~/images/index-photo.png" alt="About Us" class="img-fluid rounded about-image">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section bg-light py-5">
+    <div class="container text-center">
+        <h2>Follow Us on Instagram</h2>
+        <p class="text-muted">Stay updated with our latest products and offers.</p>
+        <!-- Instagram Icon -->
+        <a href="https://www.instagram.com/shong2007" target="_blank" class="btn btn-link text-dark">
+            <i class="fab fa-instagram fa-3x"></i> <!-- Instagram icon -->
+        </a>
+    </div>
+</section>
