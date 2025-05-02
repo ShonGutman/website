@@ -1,0 +1,53 @@
+﻿@page
+@model Web.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center mb-4">Login</h2>
+            <form method="post">
+                <!-- Display validation summary -->
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label for="Username">Username</label>
+                    <input type="text" class="form-control @(ModelState.ContainsKey("Username") ? "is-invalid" : "")" id="Username" name="Username" placeholder="Enter your username" required>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label for="Password">Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control @(ModelState.ContainsKey("Password") ? "is-invalid" : "")" id="Password" name="Password" placeholder="Enter your password" required>
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <!-- Display error message if login fails -->
+                @if (ViewData.ContainsKey("LoginError"))
+                {
+                        <div class="text-danger mb-3">
+                        @ViewData["LoginError"]
+                        </div>
+                }
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary btn-lg mt-4">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Script to toggle password visibility -->
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordInput = document.getElementById('Password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+</script>

@@ -1,0 +1,218 @@
+﻿@page
+@model Web.Pages.CheckoutModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4">Checkout</h2>
+
+    <!-- Message Display -->
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> @Model.ErrorMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> @Model.SuccessMessage
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+    }
+
+    <!-- Order Summary -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart"></i> Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.CartItems.Count == 0)
+                    {
+                            <div class="alert alert-info">
+                                Your cart is empty. <a href="/Menu">Continue shopping</a>.
+                            </div>
+                    }
+                    else
+                    {
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th class="text-center">Quantity</th>
+                                            <th class="text-right">Price</th>
+                                            <th class="text-right">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @{
+                                        decimal subtotal = 0;
+                                    }
+                                    @foreach (var cartItem in Model.CartItems)
+                                    {
+                                        var item = Model.Items.FirstOrDefault(i => i.Id == cartItem.Key);
+                                        if (item != null)
+                                        {
+                                            decimal itemTotal = item.price * cartItem.Value;
+                                            subtotal += itemTotal;
+                                                        <tr>
+                                                            <td>@item.name</td>
+                                                            <td class="text-center">@cartItem.Value</td>
+                                                            <td class="text-right">$@item.price.ToString("0.00")</td>
+                                                            <td class="text-right">$@itemTotal.ToString("0.00")</td>
+                                                        </tr>
+                                        }
+                                    }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+                                            <td class="text-right">$@Model.Subtotal.ToString("0.00")</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                            <td class="text-right"><strong>$@Model.Total.ToString("0.00")</strong></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <!-- Complete Order Button -->
+                            <div class="text-center mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#paymentModal">
+                                    <i class="fas fa-credit-card"></i> Complete Order
+                                </button>
+                            </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Customer:</strong> @Model.Username</p>
+                    <p><strong>Date:</strong> @DateTime.Now.ToString("MMM dd, yyyy")</p>
+                    <p><strong>Items:</strong> @Model.CartItems.Sum(i => i.Value)</p>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span><strong>Total:</strong></span>
+                        <span><strong>$@Model.Total.ToString("0.00")</strong></span>
+                    </div>
+                    <div class="mt-3">
+                        <a href="/Menu" class="btn btn-outline-secondary btn-block">
+                            <i class="fas fa-arrow-left"></i> Back to Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Payment Information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-page-handler="CompleteOrder" id="paymentForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="cardNumber">Credit Card Number</label>
+                        <input type="text" class="form-control" id="cardNumber" name="cardNumber"
+                               placeholder="1234 5678 9012 3456" required maxlength="16"
+                               pattern="\d{16}" title="Credit card number must be 16 digits">
+                        <small class="form-text text-muted">Enter a 16-digit credit card number</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="expiryDate">Expiry Date</label>
+                            <input type="text" class="form-control" id="expiryDate" name="expiryDate"
+                                   placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="cvv">CVV</label>
+                            <input type="text" class="form-control" id="cvv" name="cvv"
+                                   placeholder="123" required maxlength="3"
+                                   pattern="\d{3}" title="CVV must be 3 digits">
+                            <small class="form-text text-muted">3 digits on the back of your card</small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardholderName">Cardholder Name</label>
+                        <input type="text" class="form-control" id="cardholderName" name="cardholderName"
+                               placeholder="John Doe" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Complete Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            // Client-side validation for credit card number (numbers only, 16 digits)
+            document.getElementById('cardNumber').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);
+            });
+
+            // Client-side validation for CVV (numbers only, 3 digits)
+            document.getElementById('cvv').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 3);
+            });
+
+            // Format expiry date as MM/YY
+            document.getElementById('expiryDate').addEventListener('input', function(e) {
+                let value = this.value.replace(/\D/g, '').slice(0, 4);
+                if (value.length > 2) {
+                    this.value = value.slice(0, 2) + '/' + value.slice(2);
+                } else {
+                    this.value = value;
+                }
+            });
+
+            // Form validation before submit
+            document.getElementById('paymentForm').addEventListener('submit', function(e) {
+                let cardNumber = document.getElementById('cardNumber').value;
+                let cvv = document.getElementById('cvv').value;
+
+                // Check card number length and format
+                if (!/^\d{16}$/.test(cardNumber)) {
+                    alert('Credit card number must be 16 digits');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Check CVV length and format
+                if (!/^\d{3}$/.test(cvv)) {
+                    alert('CVV must be 3 digits');
+                    e.preventDefault();
+                    return false;
+                }
+
+                return true;
+            });
+        </script>
+}

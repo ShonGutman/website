@@ -1,0 +1,28 @@
+﻿@page
+@model Web.Pages.OrderConfirmationModel
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="card">
+        <div class="card-body text-center">
+            <div class="mb-4">
+                <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+            </div>
+            <h2>Thank You for Your Order!</h2>
+            <p class="lead">Your order #@Model.OrderId has been successfully placed.</p>
+            <p>We've sent a confirmation email to @Model.UserEmail with your order details.</p>
+            <p>Order date: @Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</p>
+            <hr>
+            <div class="d-flex justify-content-center mt-4">
+                <a href="/Menu" class="btn btn-primary mx-2">
+                    <i class="fas fa-shopping-cart"></i> Continue Shopping
+                </a>
+                <a href="/OrderHistory" class="btn btn-outline-secondary mx-2">
+                    <i class="fas fa-list"></i> View Order History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

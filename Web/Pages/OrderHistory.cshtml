@@ -1,0 +1,63 @@
+﻿@page
+@model Web.Pages.OrderHistoryModel
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<div class="container mt-5 mb-5">
+    <h2 class="text-center mb-4">Your Order History</h2>
+
+    @if (Model.Orders.Count == 0)
+    {
+            <div class="alert alert-info">
+                You have not placed any orders yet.
+            </div>
+    }
+    else
+    {
+            <div class="row">
+            @foreach (var order in Model.Orders)
+            {
+                        <div class="col-md-12 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Order #@order.Id - @order.PurchaseDate.ToString("MMM dd, yyyy")</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-borderless mb-0">
+                                            <thead>
+                                                <tr class="text-muted small">
+                                                    <th>Item</th>
+                                                    <th class="text-center">Quantity</th>
+                                                    <th class="text-right">Price</th>
+                                                    <th class="text-right">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                        @foreach (var itemPurchase in order.ItemPurchases)
+                                        {
+                                            decimal itemTotal = itemPurchase.Quantity * itemPurchase.ItemPriceAtPurchase;
+                                                        <tr>
+                                                            <td>@itemPurchase.Item.name</td>
+                                                            <td class="text-center">@itemPurchase.Quantity</td>
+                                                            <td class="text-right">$@itemPurchase.ItemPriceAtPurchase.ToString("0.00")</td>
+                                                            <td class="text-right">$@itemTotal.ToString("0.00")</td>
+                                                        </tr>
+                                        }
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                                                    <td class="text-right"><strong>$@order.ItemPurchases.Sum(ip => ip.Quantity * ip.ItemPriceAtPurchase).ToString("0.00")</strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            }
+            </div>
+    }
+</div>

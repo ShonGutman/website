@@ -1,0 +1,300 @@
+﻿@page
+@model Web.Pages.AdminMenuModel
+@{
+    ViewData["Title"] = "Admin Menu";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Admin Menu</h2>
+    <p>Welcome, Admin! You have access to special features.</p>
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+            <div class="alert @(Model.StatusMessage.Contains("Error") ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @Model.StatusMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+        <!-- JavaScript to handle the UI interactions -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Show alert messages for 5 seconds then fade out
+                setTimeout(function() {
+                    const alerts = document.querySelectorAll('.alert');
+                    alerts.forEach(alert => {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        setTimeout(() => bsAlert.close(), 5000);
+                    });
+                }, 3000);
+            });
+        </script>
+    </div>
+    }
+
+    <div class="row mt-4">
+        <!-- User Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4>User Management</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Users List</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.Users)
+                                {
+                                        <tr>
+                                            <td>@user.id</td>
+                                            <td>@user.first_name @user.last_name</td>
+                                            <td>@user.username</td>
+                                            <td>@user.email</td>
+                                            <td>
+                                                <form method="post" asp-page-handler="RemoveUser">
+                                                    <input type="hidden" name="userId" value="@user.id" />
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this user?')">
+                                                        Remove
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchase Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h4>Purchase Management</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">All Purchases</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var purchase in Model.Purchases)
+                                {
+                                        <tr>
+                                            <td>@purchase.Id</td>
+                                            <td>@purchase.PurchaseDate.ToShortDateString()</td>
+                                            <td>
+                                            @foreach (var item in purchase.ItemPurchases)
+                                            {
+                                                        <div>@item.Item.name (@item.Quantity) - $@(item.ItemPriceAtPurchase * item.Quantity)</div>
+                                            }
+                                            </td>
+                                            <td>$@purchase.ItemPurchases.Sum(ip => ip.ItemPriceAtPurchase * ip.Quantity)</td>
+                                        </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Purchases by Username -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h4>Search Purchases by Username</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="SearchPurchases">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="username" placeholder="Enter username" required>
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
+                    </form>
+
+                    @if (Model.SearchedPurchases != null)
+                    {
+                            <h5>Results for: @Model.SearchUsername</h5>
+                        @if (Model.SearchedPurchases.Count > 0)
+                        {
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Date</th>
+                                                    <th>Items</th>
+                                                    <th>Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                        @foreach (var purchase in Model.SearchedPurchases)
+                                        {
+                                                        <tr>
+                                                            <td>@purchase.Id</td>
+                                                            <td>@purchase.PurchaseDate.ToShortDateString()</td>
+                                                            <td>
+                                                    @foreach (var item in purchase.ItemPurchases)
+                                                    {
+                                                                        <div>@item.Item.name (@item.Quantity) - $@(item.ItemPriceAtPurchase * item.Quantity)</div>
+                                                    }
+                                                            </td>
+                                                            <td>$@purchase.ItemPurchases.Sum(ip => ip.ItemPriceAtPurchase * ip.Quantity)</td>
+                                                        </tr>
+                                        }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                        }
+                        else
+                        {
+                                    <div class="alert alert-warning">
+                                        No purchases found for this user.
+                                    </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h4>Item Management</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Add New Item</h5>
+                    <form method="post" asp-page-handler="AddItem" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="itemName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemStock" class="form-label">Stock</label>
+                            <input type="number" class="form-control" id="itemStock" name="stock" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemPrice" class="form-label">Price</label>
+                            <input type="number" class="form-control" id="itemPrice" name="price" min="0" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemImage" class="form-label">Image</label>
+                            <input type="file" class="form-control" id="itemImage" name="image">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                    </form>
+
+                    <hr>
+
+                    <h5 class="card-title mt-4">Item List</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Stock</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                        <tr>
+                                            <td>@item.Id</td>
+                                            <td>@item.name</td>
+                                            <td>@item.stock</td>
+                                            <td>$@item.price</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-warning btn-sm" id="updatePriceBtn-@item.Id" onclick="togglePriceEdit(@item.Id)">
+                                                        Update Price
+                                                    </button>
+                                                    <button type="button" class="btn btn-info btn-sm" id="updateStockBtn-@item.Id" onclick="toggleStockEdit(@item.Id)">
+                                                        Update Stock
+                                                    </button>
+                                                    <form method="post" asp-page-handler="RemoveItem">
+                                                        <input type="hidden" name="itemId" value="@item.Id" />
+                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this item?')">
+                                                            Remove
+                                                        </button>
+                                                    </form>
+                                                </div>
+
+                                                <!-- Direct Update Price Form -->
+                                                <form method="post" asp-page-handler="UpdateItemPrice" class="mt-2" style="display: none;" id="updatePriceForm-@item.Id">
+                                                    <div class="input-group">
+                                                        <input type="hidden" name="itemId" value="@item.Id" />
+                                                        <input type="number" class="form-control form-control-sm" name="newPrice" min="0" step="0.01" value="@item.price" required>
+                                                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                                                        <button type="button" class="btn btn-sm btn-secondary" onclick="togglePriceEdit(@item.Id)">Cancel</button>
+                                                    </div>
+                                                </form>
+
+                                                <!-- Direct Update Stock Form -->
+                                                <form method="post" asp-page-handler="UpdateItemStock" class="mt-2" style="display: none;" id="updateStockForm-@item.Id">
+                                                    <div class="input-group">
+                                                        <input type="hidden" name="itemId" value="@item.Id" />
+                                                        <input type="number" class="form-control form-control-sm" name="newStock" min="0" value="@item.stock" required>
+                                                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                                                        <button type="button" class="btn btn-sm btn-secondary" onclick="toggleStockEdit(@item.Id)">Cancel</button>
+                                                    </div>
+                                                </form>
+
+                                                <script>
+                                                    function togglePriceEdit(itemId) {
+                                                        const form = document.getElementById('updatePriceForm-' + itemId);
+                                                        const btn = document.getElementById('updatePriceBtn-' + itemId);
+
+                                                        if (form.style.display === 'none') {
+                                                            form.style.display = 'block';
+                                                            btn.style.display = 'none';
+                                                        } else {
+                                                            form.style.display = 'none';
+                                                            btn.style.display = 'inline-block';
+                                                        }
+                                                    }
+
+                                                    function toggleStockEdit(itemId) {
+                                                        const form = document.getElementById('updateStockForm-' + itemId);
+                                                        const btn = document.getElementById('updateStockBtn-' + itemId);
+
+                                                        if (form.style.display === 'none') {
+                                                            form.style.display = 'block';
+                                                            btn.style.display = 'none';
+                                                        } else {
+                                                            form.style.display = 'none';
+                                                            btn.style.display = 'inline-block';
+                                                        }
+                                                    }
+                                                </script>
+                                            </td>
+                                        </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
